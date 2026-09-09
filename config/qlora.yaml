@@ -1,0 +1,129 @@
+# ============================================================
+# QLoRA Fine-Tuning Configuration
+# ============================================================
+
+experiment:
+  name: "qlora_function_calling"
+  seed: 42
+
+
+# ============================================================
+# DATA CONFIGURATION
+# ============================================================
+
+data:
+  train_samples: 4000
+  validation_samples: 1000
+
+  max_length: 1024
+
+  stratify_column: "complexity_group"
+
+
+# ============================================================
+# MODEL CONFIGURATION
+# ============================================================
+
+model:
+  name: "Qwen/Qwen2.5-1.5B-Instruct"
+
+
+# ============================================================
+# QUANTIZATION CONFIGURATION
+# ============================================================
+
+quantization:
+  load_in_4bit: true
+  quant_type: "nf4"
+  use_double_quant: true
+  compute_dtype: "float16"
+
+
+# ============================================================
+# LoRA CONFIGURATION
+# ============================================================
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+
+  bias: "none"
+
+  task_type: "CAUSAL_LM"
+
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+
+
+# ============================================================
+# TRAINING CONFIGURATION
+# ============================================================
+
+training:
+
+  num_train_epochs: 3
+
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+
+  gradient_accumulation_steps: 8
+
+  learning_rate: 0.0002
+
+  warmup_ratio: 0.05
+
+  weight_decay: 0.01
+
+  logging_steps: 50
+
+  evaluation_strategy: "steps"
+  eval_steps: 100
+
+  save_strategy: "steps"
+  save_steps: 100
+
+  save_total_limit: 2
+
+  load_best_model_at_end: true
+
+  metric_for_best_model: "eval_loss"
+
+  greater_is_better: false
+
+  fp16: false
+  bf16: false
+
+  gradient_checkpointing: true
+
+  completion_only_loss: true
+
+  packing: false
+
+  report_to:
+    - "mlflow"
+
+
+# ============================================================
+# OUTPUT CONFIGURATION
+# ============================================================
+
+output:
+
+  output_dir: "checkpoints/qlora"
+
+  final_model_dir: "checkpoints/qlora/final_adapter"
+
+
+# ============================================================
+# MLFLOW CONFIGURATION
+# ============================================================
+
+mlflow:
+
+  experiment_name: "tool_calling_finetuning"
+
+  run_name: "qlora_4000_train_1000_validation"
